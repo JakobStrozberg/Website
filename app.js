@@ -28,8 +28,9 @@ let fpsStartTime = Date.now();
 
 // UI elements
 const statusElement = document.getElementById('status');
-const startButton = document.getElementById('startButton');
-const stopButton = document.getElementById('stopButton');
+// Removed start/stop buttons – camera starts automatically
+const startButton = null;
+const stopButton = null;
 const fpsDisplay = document.getElementById('fpsDisplay');
 const inferenceTimeDisplay = document.getElementById('inferenceTime');
 
@@ -46,11 +47,19 @@ async function init() {
         // Load ONNX model
         await loadModel();
         
-        // Set up event listeners
-        setupEventListeners();
-        
-        updateStatus('Model loaded - Ready to start', 'ready');
-        startButton.disabled = false;
+        // Video size listeners (metadata/resize)
+        videoElement.addEventListener('loadedmetadata', () => {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+        });
+        videoElement.addEventListener('resize', () => {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+        });
+
+        // Model loaded – start camera immediately
+        updateStatus('Model loaded - Starting camera...', 'loading');
+        await startCamera();
         
     } catch (error) {
         console.error('Initialization failed:', error);
@@ -82,8 +91,7 @@ async function loadModel() {
 
 // Set up event listeners
 function setupEventListeners() {
-    startButton.addEventListener('click', startCamera);
-    stopButton.addEventListener('click', stopCamera);
+    // (Buttons removed)
     
     // Handle video metadata loaded
     videoElement.addEventListener('loadedmetadata', () => {
@@ -115,8 +123,7 @@ async function startCamera() {
         videoElement.srcObject = stream;
         isRunning = true;
         
-        startButton.disabled = true;
-        stopButton.disabled = false;
+        // Buttons removed – nothing to toggle
         
         updateStatus('Camera active - Detecting objects', 'ready');
         
@@ -142,8 +149,7 @@ function stopCamera() {
     // Clear canvas
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     
-    startButton.disabled = false;
-    stopButton.disabled = true;
+    // Buttons removed – nothing to toggle
     
     updateStatus('Camera stopped', 'ready');
 }
