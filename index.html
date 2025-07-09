@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="YOLO11 Nano Object Detection - Real-time detection using your camera">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Security headers for HTTPS deployment -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:;">
+    
+    <!-- PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="YOLO Detection">
+    
+    <title>YOLO11 Nano Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>YOLO11 Nano Detection</h1>
+            <div class="status" id="status">Loading model...</div>
+        </header>
+        
+        <main>
+            <div class="video-container">
+                <video id="videoElement" autoplay playsinline muted></video>
+                <canvas id="overlay"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button id="startButton" disabled>Start Camera</button>
+                <button id="stopButton" disabled>Stop Camera</button>
+                <div class="info">
+                    <div class="fps">FPS: <span id="fpsDisplay">0</span></div>
+                    <div class="inference-time">Inference: <span id="inferenceTime">0</span>ms</div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Running locally on your device with ONNX Runtime Web</p>
+        </footer>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+</body>
+</html> 

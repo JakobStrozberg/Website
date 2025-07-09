@@ -1,0 +1,274 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #000;
+    color: #fff;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 1rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header styles */
+header {
+    text-align: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #333;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.status {
+    font-size: 0.9rem;
+    color: #888;
+    padding: 0.5rem 1rem;
+    background-color: #1a1a1a;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.status.loading {
+    color: #ffa500;
+}
+
+.status.ready {
+    color: #00ff00;
+}
+
+.status.error {
+    color: #ff4444;
+}
+
+/* Main content area */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Video container with overlay */
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 1rem;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+#videoElement {
+    width: 100%;
+    height: auto;
+    display: block;
+    background-color: #000;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Controls section */
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.controls button {
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.controls button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.controls button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.controls button:disabled {
+    background-color: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+#stopButton {
+    background-color: #ff3b30;
+}
+
+#stopButton:hover:not(:disabled) {
+    background-color: #d70015;
+}
+
+/* Info display */
+.info {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.info > div {
+    text-align: center;
+}
+
+.info span {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    border-top: 1px solid #333;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .video-container {
+        border-radius: 5px;
+    }
+    
+    .controls {
+        gap: 0.75rem;
+    }
+    
+    .controls button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .info {
+        gap: 1.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Landscape orientation for mobile */
+@media (orientation: landscape) and (max-height: 600px) {
+    .container {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    header {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        border-bottom: none;
+        border-right: 1px solid #333;
+        padding: 0 1rem;
+        margin-bottom: 0;
+        margin-right: 1rem;
+    }
+    
+    main {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    .video-container {
+        flex: 1;
+        margin: 0;
+    }
+    
+    .controls {
+        max-width: 200px;
+    }
+    
+    footer {
+        display: none;
+    }
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.status.loading {
+    animation: pulse 2s infinite;
+}
+
+/* Bounding box styles (will be applied via JavaScript) */
+.bounding-box {
+    position: absolute;
+    border: 2px solid #00ff00;
+    background-color: transparent;
+    pointer-events: none;
+}
+
+.bounding-box-label {
+    position: absolute;
+    background-color: #00ff00;
+    color: #000;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    top: -20px;
+    left: 0;
+    white-space: nowrap;
+}
+
+/* Dark mode support (always on) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #000;
+        color: #fff;
+    }
+} 
