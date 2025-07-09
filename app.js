@@ -373,5 +373,10 @@ function updateStatus(message, type = '') {
     statusElement.className = `status ${type}`;
 }
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', init); 
+// Initialize app when DOM is loaded (handles both fresh load and cached navigation)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    // DOM was already loaded (e.g., bfcache restore)
+    init();
+} 
