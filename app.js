@@ -112,13 +112,24 @@ async function startCamera() {
         updateStatus('Starting camera...', 'loading');
         
         // Request camera access with rear camera preference
-        const stream = await navigator.mediaDevices.getUserMedia({
+        let stream;
+        const preferredConstraints = {
+            audio: false,
             video: {
-                facingMode: 'environment', // Use rear camera on mobile
+                facingMode: { ideal: 'environment' }, // Prefer rear camera on mobile
                 width: { ideal: 640 },
                 height: { ideal: 480 }
             }
-        });
+        };
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia(preferredConstraints);
+        } catch (err) {
+            console.warn('Preferred constraints failed, falling back to default camera', err);
+            // Fallback: any available camera
+            const fallbackConstraints = { audio: false, video: true };
+            stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+        }
         
         videoElement.srcObject = stream;
         // Some browsers (e.g., Safari, iOS) require an explicit play() call
