@@ -121,6 +121,22 @@ async function startCamera() {
         });
         
         videoElement.srcObject = stream;
+        // Some browsers (e.g., Safari, iOS) require an explicit play() call
+        try {
+            await videoElement.play();
+        } catch (playErr) {
+            console.warn('Autoplay prevented, waiting for user gesture to start video.', playErr);
+            // If autoplay is blocked, inform the user to tap the screen to start the camera
+            updateStatus('Tap to start camera', 'ready');
+
+            const gestureStart = () => {
+                videoElement.play().finally(() => {
+                    videoElement.removeEventListener('click', gestureStart);
+                    updateStatus('Camera active - Detecting objects', 'ready');
+                });
+            };
+            videoElement.addEventListener('click', gestureStart);
+        }
         isRunning = true;
         
         // Buttons removed – nothing to toggle
