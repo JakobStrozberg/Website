@@ -1,6 +1,6 @@
-// 1. smallest: WASM execution-provider only
+// WASM EP (default build)
 import * as ort from
-  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.esm.min.js';
+  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.min.mjs';
 
 // 2. need WebGPU as well?
 // import * as ort from
