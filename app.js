@@ -1,5 +1,6 @@
-// Import ONNX Runtime Web
-import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/esm/ort.webassembly.min.js';
+// WASM EP (default build)
+import * as ort from
+  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/esm/ort.min.js';
 
 // Configure ONNX Runtime
 ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
