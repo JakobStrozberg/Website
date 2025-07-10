@@ -89,8 +89,10 @@ async function loadModel() {
         console.log('Input names:', session.inputNames);
         console.log('Output names:', session.outputNames);
         
-    } catch (error) {
-        throw new Error(`Failed to load model: ${error.message}`);
+    } catch (err) {
+        console.error(err);
+        updateStatus(`Failed to load model – ${err.message}`, 'error');
+        throw err;
     }
 }
 
