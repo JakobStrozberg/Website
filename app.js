@@ -14,7 +14,7 @@ ort.env.wasm.numThreads = 1; // Single-threaded for better mobile compatibility
 // YOLO configuration
 const YOLO_CONFIG = {
     modelPath: './yolomodel.onnx',
-    inputSize: 320,
+    inputSize: 640,
     classes: 1, // Single class detection
     confidenceThreshold: 0.5,
     iouThreshold: 0.4,
@@ -291,11 +291,13 @@ function processYOLOOutput(output) {
         // Filter by confidence
         if (confidence > YOLO_CONFIG.confidenceThreshold) {
             // Convert to corner coordinates
-            const x1 = centerX - width / 2;
-            const y1 = centerY - height / 2;
-            const x2 = centerX + width / 2;
-            const y2 = centerY + height / 2;
-            
+            // Model outputs are in pixel coordinates (0‒640). Normalize to [0,1]
+            const scale = YOLO_CONFIG.inputSize;
+            const x1 = (centerX - width / 2) / scale;
+            const y1 = (centerY - height / 2) / scale;
+            const x2 = (centerX + width / 2) / scale;
+            const y2 = (centerY + height / 2) / scale;
+
             detections.push({
                 x1: Math.max(0, x1),
                 y1: Math.max(0, y1),
