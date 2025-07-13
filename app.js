@@ -16,9 +16,9 @@ const YOLO_CONFIG = {
     modelPath: './yolomodel.onnx',
     inputSize: 640,
     classes: 1, // Single class detection
-    confidenceThreshold: 0.5,
+    confidenceThreshold: 0.8,
     iouThreshold: 0.4,
-    maxDetections: 100
+    maxDetections: 50
 };
 
 // Global variables
@@ -272,43 +272,54 @@ async function videoToTensor(videoElement) {
 
 // Process YOLO output
 function processYOLOOutput(output) {
-    const detections = [];
     const data = output.data;
-    const dims = output.dims;
-    
-    // YOLOv11 output format: [batch, 84, 8400] where 84 = 4 (bbox) + 80 (classes)
-    // For single class: [batch, 5, num_anchors] where 5 = 4 (bbox) + 1 (class)
-    const numDetections = dims[2];
-    
-    for (let i = 0; i < numDetections; i++) {
-        // Extract bounding box (center_x, center_y, width, height)
-        const centerX = data[i * 5 + 0];
-        const centerY = data[i * 5 + 1];
-        const width = data[i * 5 + 2];
-        const height = data[i * 5 + 3];
-        const confidence = data[i * 5 + 4];
-        
-        // Filter by confidence
-        if (confidence > YOLO_CONFIG.confidenceThreshold) {
-            // Convert to corner coordinates
-            // Model outputs are in pixel coordinates (0‒640). Normalize to [0,1]
-            const scale = YOLO_CONFIG.inputSize;
-            const x1 = (centerX - width / 2) / scale;
-            const y1 = (centerY - height / 2) / scale;
-            const x2 = (centerX + width / 2) / scale;
-            const y2 = (centerY + height / 2) / scale;
+    const dims = output.dims; // [1, channels, numAnchors]
 
-            detections.push({
-                x1: Math.max(0, x1),
-                y1: Math.max(0, y1),
-                x2: Math.min(1, x2),
-                y2: Math.min(1, y2),
-                confidence: confidence,
-                class: 0 // Single class
-            });
+    const channels = dims[1];
+    const numAnchors = dims[2];
+
+    const detections = [];
+
+    // Iterate over every anchor prediction
+    for (let anchorIdx = 0; anchorIdx < numAnchors; anchorIdx++) {
+        const cx  = data[0 * numAnchors + anchorIdx];
+        const cy  = data[1 * numAnchors + anchorIdx];
+        const w   = data[2 * numAnchors + anchorIdx];
+        const h   = data[3 * numAnchors + anchorIdx];
+        const obj = data[4 * numAnchors + anchorIdx];
+
+        // Retrieve class probability
+        let clsProb = 0;
+        if (channels === 6) {
+            // Single-class model
+            clsProb = data[5 * numAnchors + anchorIdx];
+        } else {
+            // Multi-class model – take the highest class score
+            for (let c = 5; c < channels; c++) {
+                const p = data[c * numAnchors + anchorIdx];
+                if (p > clsProb) clsProb = p;
+            }
         }
+
+        const conf = obj * clsProb;
+        if (conf < YOLO_CONFIG.confidenceThreshold) continue;
+
+        const scale = YOLO_CONFIG.inputSize;
+        const x1 = (cx - w / 2) / scale;
+        const y1 = (cy - h / 2) / scale;
+        const x2 = (cx + w / 2) / scale;
+        const y2 = (cy + h / 2) / scale;
+
+        detections.push({
+            x1: Math.max(0, x1),
+            y1: Math.max(0, y1),
+            x2: Math.min(1, x2),
+            y2: Math.min(1, y2),
+            confidence: conf,
+            class: 0 // single-class project
+        });
     }
-    
+
     return detections;
 }
 
