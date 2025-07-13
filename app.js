@@ -1,6 +1,6 @@
 // WASM EP (default build)
 import * as ort from
-  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.bundle.min.mjs';
+  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.min.mjs';
 
 // 2. need WebGPU as well?
 // import * as ort from
@@ -90,6 +90,11 @@ async function loadModel() {
         throw err;
     }
 }
+
+// Configure ONNX Runtime WASM to use the smallest artefact (no SIMD, single-thread)
+ort.env.wasm.simd = false;
+ort.env.wasm.numThreads = 1; // 1 == disable multi-threading
+ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
 
 // Set up event listeners
 function setupEventListeners() {
