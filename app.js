@@ -14,7 +14,7 @@ ort.env.wasm.simd = false;
 
 // YOLO configuration
 const YOLO_CONFIG = {
-    modelPath: './yolomodel.onnx',
+    modelPath: './yolomodel_int8.onnx',
     inputSize: 640,
     classes: 1, // Single class detection
     confidenceThreshold: 0.25, // lowered for proper filtering
