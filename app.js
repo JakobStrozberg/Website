@@ -1,16 +1,12 @@
 // WASM EP (default build)
 import * as ort from
-  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.bundle.min.mjs';
+  'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgl.min.mjs';
 
 // 2. need WebGPU as well?
 // import * as ort from
 //   'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgpu.esm.min.js';
 
-// Configure ONNX Runtime
-ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
-// Force non-SIMD build on browsers that may run out of memory with the SIMD artefact
-ort.env.wasm.simd = false;
-// Let ONNX Runtime Web pick the best settings for the current browser (auto-detect SIMD and threads)
+// No extra configuration needed for WebGL build
 
 // YOLO configuration
 const YOLO_CONFIG = {
@@ -77,9 +73,7 @@ async function init() {
 async function loadModel() {
     try {
         const sessionOptions = {
-            executionProviders: ['wasm'],
-            enableCpuMemArena: false,
-            enableMemPattern: false,
+            executionProviders: ['webgl'],
             enableProfiling: false,
             logSeverityLevel: 3,
             logVerbosityLevel: 0
