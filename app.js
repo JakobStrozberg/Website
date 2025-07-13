@@ -8,8 +8,7 @@ import * as ort from
 
 // Configure ONNX Runtime
 ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
-ort.env.wasm.simd = true;
-ort.env.wasm.numThreads = 1; // Single-threaded for better mobile compatibility
+// Let ONNX Runtime Web pick the best settings for the current browser (auto-detect SIMD and threads)
 
 // YOLO configuration
 const YOLO_CONFIG = {
