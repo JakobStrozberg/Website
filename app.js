@@ -73,7 +73,7 @@ async function init() {
 async function loadModel() {
     try {
         const sessionOptions = {
-            executionProviders: ['webgl'],
+            executionProviders: ['wasm'],
             enableProfiling: false,
             logSeverityLevel: 3,
             logVerbosityLevel: 0
