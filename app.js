@@ -273,12 +273,12 @@ async function videoToTensor(videoElement) {
 // Process YOLO output
 function processYOLOOutput(output) {
     const data = output.data;
-    const dims = output.dims; // e.g. [1, 6, 8400] or [1, 8400, 6]
-    const [ , d1, d2] = dims;
+    const dims = output.dims; // e.g. [1, 5, 8400], [1, 6, 8400] or [1, 8400, 6]
+    const [, d1, d2] = dims;
 
-    const channels = Math.min(d1, d2); // 6 or 84
-    const anchors  = Math.max(d1, d2); // 8400
-    const channelsFirst = d1 < d2;     // true if shape (C,N)
+    const channels = Math.min(d1, d2); // number of values per anchor (5, 6 or 84)
+    const anchors = Math.max(d1, d2);  // number of anchors (e.g. 8400)
+    const channelsFirst = d1 < d2;     // true if shape (C,N) else (N,C)
 
     const detections = [];
 
@@ -288,40 +288,62 @@ function processYOLOOutput(output) {
         : a * channels + c;   // (N,C)
 
     for (let a = 0; a < anchors; a++) {
-        const cx  = data[index(a, 0)];
-        const cy  = data[index(a, 1)];
-        const w   = data[index(a, 2)];
-        const h   = data[index(a, 3)];
-        const obj = data[index(a, 4)];
+        // Different output layouts depending on export type
+        if (channels === 5) {
+            // Exported with end-to-end NMS disabled and single-class model → [x1, y1, x2, y2, score]
+            const x1 = data[index(a, 0)] / YOLO_CONFIG.inputSize;
+            const y1 = data[index(a, 1)] / YOLO_CONFIG.inputSize;
+            const x2 = data[index(a, 2)] / YOLO_CONFIG.inputSize;
+            const y2 = data[index(a, 3)] / YOLO_CONFIG.inputSize;
+            const conf = data[index(a, 4)];
 
-        // class probability (single-class or max over classes)
-        let clsProb = 0;
-        if (channels === 6) {
-            clsProb = data[index(a, 5)];
+            if (conf < YOLO_CONFIG.confidenceThreshold) continue;
+
+            detections.push({
+                x1: Math.max(0, x1),
+                y1: Math.max(0, y1),
+                x2: Math.min(1, x2),
+                y2: Math.min(1, y2),
+                confidence: conf,
+                class: 0
+            });
         } else {
-            for (let c = 5; c < channels; c++) {
-                const p = data[index(a, c)];
-                if (p > clsProb) clsProb = p;
+            // Raw predictions: [cx, cy, w, h, obj, …cls]
+            const cx = data[index(a, 0)];
+            const cy = data[index(a, 1)];
+            const w  = data[index(a, 2)];
+            const h  = data[index(a, 3)];
+            const obj = data[index(a, 4)];
+
+            // class probability (single-class or max over classes)
+            let clsProb = 0;
+            if (channels === 6) {
+                clsProb = data[index(a, 5)];
+            } else {
+                for (let c = 5; c < channels; c++) {
+                    const p = data[index(a, c)];
+                    if (p > clsProb) clsProb = p;
+                }
             }
+
+            const conf = obj * clsProb;
+            if (conf < YOLO_CONFIG.confidenceThreshold) continue;
+
+            const scale = YOLO_CONFIG.inputSize;
+            const x1 = (cx - w / 2) / scale;
+            const y1 = (cy - h / 2) / scale;
+            const x2 = (cx + w / 2) / scale;
+            const y2 = (cy + h / 2) / scale;
+
+            detections.push({
+                x1: Math.max(0, x1),
+                y1: Math.max(0, y1),
+                x2: Math.min(1, x2),
+                y2: Math.min(1, y2),
+                confidence: conf,
+                class: 0
+            });
         }
-
-        const conf = obj * clsProb;
-        if (conf < YOLO_CONFIG.confidenceThreshold) continue;
-
-        const scale = YOLO_CONFIG.inputSize;
-        const x1 = (cx - w / 2) / scale;
-        const y1 = (cy - h / 2) / scale;
-        const x2 = (cx + w / 2) / scale;
-        const y2 = (cy + h / 2) / scale;
-
-        detections.push({
-            x1: Math.max(0, x1),
-            y1: Math.max(0, y1),
-            x2: Math.min(1, x2),
-            y2: Math.min(1, y2),
-            confidence: conf,
-            class: 0
-        });
     }
     return detections;
 }
