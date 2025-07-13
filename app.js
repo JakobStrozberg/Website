@@ -8,6 +8,8 @@ import * as ort from
 
 // Configure ONNX Runtime
 ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
+// Force non-SIMD build on browsers that may run out of memory with the SIMD artefact
+ort.env.wasm.simd = false;
 // Let ONNX Runtime Web pick the best settings for the current browser (auto-detect SIMD and threads)
 
 // YOLO configuration
